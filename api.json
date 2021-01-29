@@ -34,22 +34,5 @@
       "id": 6,
       "title": "Chela",
       "thumbnailUrl": "https://picsum.photos/id/50/600"
-    },
-    {
-        "precio": 350,
-        "id": 7,
-        "title": "Orange",
-        "thumbnailUrl": "https://picsum.photos/id/60/600"
-    },
-    {
-        "precio": 450,
-        "id": 8,
-        "title": "Mate",
-        "thumbnailUrl": "https://picsum.photos/id/70/600"
-    },{
-        "precio": 550,
-        "id": 9,
-        "title": "Termo",
-        "thumbnailUrl": "https://picsum.photos/id/80/600"
     }
   ]

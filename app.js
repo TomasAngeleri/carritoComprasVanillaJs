@@ -1,14 +1,28 @@
+const cards = document.getElementById('cards');
 const items = document.getElementById('items');
+const footer = document.getElementById('footer');
+
 const templateCard = document.getElementById('template-card').content
+const templateFooter = document.getElementById('template-footer').content
+const templateCarrito = document.getElementById('template-carrito').content
+
 const fragment = document.createDocumentFragment()
 let carrito ={};
 
 document.addEventListener('DOMContentLoaded',() =>{
     fetchData();
+    if(localStorage.getItem('carrito')){
+        carrito = JSON.parse(localStorage.getItem('carrito'));
+        pintarCarrito(carrito);
+    }
 })
 
-items.addEventListener('click',e =>{
+cards.addEventListener('click',e =>{
     addCarrito(e);
+})
+
+items.addEventListener('click', e =>{
+    btnAccion(e)
 })
 
 const fetchData = async () =>{
@@ -33,7 +47,7 @@ const pintarCards = data => {
         fragment.appendChild(clone);
     })
 
-    items.appendChild(fragment)
+    cards.appendChild(fragment)
 }
 
 
@@ -57,7 +71,78 @@ const setCarrito = objeto => {
     }    
     
     carrito[producto.id] = {...producto}
+    pintarCarrito(carrito)
+    
+}
 
-    console.log(carrito);
+
+const pintarCarrito = () => {
+    items.innerHTML = '';
+    Object.values(carrito).forEach(producto =>{
+        templateCarrito.querySelector('th').textContent = producto.id;
+        templateCarrito.querySelectorAll('td')[0].textContent = producto.title
+        templateCarrito.querySelectorAll('td')[1].textContent = producto.cantidad
+        templateCarrito.querySelector('.btn-info').dataset.id= producto.id
+        templateCarrito.querySelector('.btn-danger').dataset.id= producto.id
+        templateCarrito.querySelector('span').textContent = producto.precio * producto.cantidad
+
+        const clone = templateCarrito.cloneNode(true)
+        fragment.appendChild(clone)
+
+    })
+
+    items.appendChild(fragment)
+
+    pintarFooter(carrito)
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+}
+
+
+const pintarFooter = () =>{
+    
+    footer.innerHTML =  '';
+    if(Object.keys(carrito).length === 0){
+        footer.innerHTML =  `<th scope="row" colspan="5">Carrito vac&iacute;o </th>`;
+        return;
+    }
+
+    const totalProductos = Object.values(carrito).reduce((acumulador,{cantidad}) => acumulador + cantidad , 0)
+    const totalPrecios = Object.values(carrito).reduce((total,{cantidad,precio}) => total + cantidad * precio ,0)
+    
+    templateFooter.querySelectorAll('td')[0].textContent = totalProductos;
+    templateFooter.querySelector('span').textContent = totalPrecios;
+
+    const clone = templateFooter.cloneNode(true)
+    fragment.appendChild(clone)
+    footer.appendChild(fragment);
+
+    const btnVaciaCarrito = document.getElementById('vaciar-carrito');
+    btnVaciaCarrito.addEventListener('click',()=>{
+        carrito = {};
+        pintarCarrito(carrito)
+    });
+
+}
+
+const btnAccion = e => {
+    //Accion de aumentar
+    if(e.target.classList.contains('btn-info')){
+        console.log(carrito[e.target.dataset.id])
+        const producto = carrito[e.target.dataset.id];
+        producto.cantidad = producto.cantidad + 1;
+        carrito[e.target.dataset.id] = {...producto}
+        pintarCarrito(carrito)
+    }
+
+    if(e.target.classList.contains('btn-danger')){
+        const producto = carrito[e.target.dataset.id];
+        producto.cantidad = producto.cantidad - 1;
+        if(producto.cantidad === 0){
+            delete carrito[e.target.dataset.id]
+        }
+        pintarCarrito(carrito)
+    }
+
+    e.stopPropagation();
     
 }
